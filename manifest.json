@@ -1,0 +1,35 @@
+{
+  "name": "Data Isolation Checker",
+  "description": "Checks data isolation for multi-tenant application",
+  "version": "0.0.1",
+
+  "icons": {
+    "16": "Icons/Di16.png",
+    "32": "Icons/Di32.png",
+    "48": "Icons/Di48.png",
+    "128": "Icons/Di128.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [ "*://*/*" ],
+      "js": ["jquery-3.2.0.min.js",  "content.js"]
+    }
+  ],
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "browser_action": {
+    "default_icon": "Icons/Di48.png",
+    "default_title": "Settings",
+    "default_popup": "Settings.html"
+  },
+
+  "permissions": [
+    "activeTab"
+  ],
+
+  "manifest_version": 2
+} 
