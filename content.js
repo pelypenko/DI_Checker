@@ -1,17 +1,33 @@
 var storageKey = "DILeaks";  //todo: global
-var tenants = ["tenant1", "tenant2", "tenant3"]; //todo: global
+var tenantNames = ["tenant1", "tenant2", "tenant3"]; //todo: global
 var textBlockMargin = 250; //todo: global
+var testSessionID = "w31231231s231"; //todo: global
+var clusterDomain = "opendev.intapp.com"; //todo: global
+var isTestSessionActive = true;
 
+//todo: do not use jQuery
 $(document).ready(function() {
-    var tenant = getTenantByURL(location.href);
+    if (getParameterByName("DI_InitTestSession")) {
+        resetTestSession();
+        return;
+    }
 
-    checkCurrentDoc(tenant);
+    if (getParameterByName("DI_ShowTestResults")) {
+        showTestResults(testSessionID);
+        return;
+    }
+
+    if (isTestSessionActive) {
+        var tenant = getTenantByURL(location.hostname, clusterDomain);
+        checkCurrentDoc(tenant);
+    }
 });
 
 function checkCurrentDoc(tenant) {
-    var body =  $('body').html().toString();
+    var body = document.body.innerHTML;
 
-    tenants.forEach(function(keyWord) {
+    //todo: can I use RegExp here?
+    tenantNames.forEach(function(keyWord) {
         if (keyWord === tenant)
             return;
 
@@ -19,6 +35,7 @@ function checkCurrentDoc(tenant) {
         if (index > 0) {
             recordLeak(
                 {
+                    testSessionID: testSessionID,
                     tenant: tenant,
                     keyWord: keyWord,
                     url: location.href,
@@ -30,9 +47,41 @@ function checkCurrentDoc(tenant) {
     });
 }
 
-function getTenantByURL(url) {
+function resetTestSession() {
     //todo: implement
-    return "tenant1";
+    return "sessionID";
+}
+
+function showTestResults() {
+    //todo: implement
+    return;
+}
+
+function getParameterByName(name, url) {
+    if (!url)
+      url = window.location.href;
+
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+    var results = regex.exec(url);
+
+    if (!results) 
+        return null;
+
+    if (!results[2])
+        return '';
+
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+function getTenantByURL(url, clusterDomain) {
+    // if (url.indexOf(clusterDomain) < 0) {
+    //     return '';
+    // }   
+    // url = url.replace(/(^\w+:|^)\/\//, '');
+    // return url.substring(0, url.indexOf('.'));
+
+    return "tenant1"; //todo:    rework and remove mock
 }
 
 function recordLeak(leak) {   
