@@ -1,60 +1,63 @@
-var storageKey = "DILeaks";  //todo: global
-var tenantNames = ["tenant1", "tenant2", "tenant3"]; //todo: global
-var textBlockMargin = 250; //todo: global
-var testSessionID = "w31231231s231"; //todo: global
-var clusterDomain = "opendev.intapp.com"; //todo: global
-var isTestSessionActive = true;
-
-//todo: do not use jQuery
 $(document).ready(function() {
-    if (getParameterByName("DI_InitTestSession")) {
+
+    if (getParameterByName("di_ResetTestSession")) {
         resetTestSession();
         return;
     }
 
-    if (getParameterByName("DI_ShowTestResults")) {
-        showTestResults(testSessionID);
+    if (getParameterByName("di_ShowTestResults")) {
+        showTestResults();
         return;
     }
 
-    if (isTestSessionActive) {
-        var tenant = getTenantByURL(location.hostname, clusterDomain);
-        checkCurrentDoc(tenant);
-    }
+    //check current page
+    //todo: re-work this using jQuery 'then' construction
+    getOptions(checkCurrentDoc); 
 });
 
-function checkCurrentDoc(tenant) {
-    var body = document.body.innerHTML;
+function checkCurrentDoc(options) {
+    if (!options.testSessionID || !options.tenantNames) 
+        return;
 
-    //todo: can I use RegExp here?
-    tenantNames.forEach(function(keyWord) {
-        if (keyWord === tenant)
+    var curTenant = getTenantByURL(location.hostname, options.clusterDomain);
+    if (!curTenant) 
+        return;
+
+    var body = document.body.innerHTML;
+    var tenants = options.tenantNames ? options.tenantNames.split(',') : [];
+    options.leaks = [];
+
+    //todo: re-work this
+    $.each(tenants, function(ii, tenant) {
+        if (tenant === curTenant)
             return;
 
-        var index = body.indexOf(keyWord);
-        if (index > 0) {
-            recordLeak(
-                {
-                    testSessionID: testSessionID,
-                    tenant: tenant,
-                    keyWord: keyWord,
+        var idx = body.indexOf(tenant);
+        if (idx > 0) {
+            var leak = {
+                    currentTenant: curTenant,
+                    wrongTenant: tenant,
                     url: location.href,
-                    textBlock: body.substring(index - textBlockMargin, index + textBlockMargin),
-                    screenshot: null
-                });
+                    textBlock: body.substring(idx - options.textBlockMargin, idx + options.textBlockMargin)
+                };
+            options.leaks.push(leak);
+            
+            //capacity of chrome.storage is limited, we will store just first 10 search results 
+            if (options.leaks.length > 10) 
+                return false;
         }
-
     });
+    setOptions(options);
 }
 
-function resetTestSession() {
-    //todo: implement
-    return "sessionID";
-}
+function getTenantByURL(url, clusterDomain) {
+    // if (url.indexOf(clusterDomain) < 0) {
+    //     return '';
+    // }   
+    // url = url.replace(/(^\w+:|^)\/\//, '');
+    // return url.substring(0, url.indexOf('.'));
 
-function showTestResults() {
-    //todo: implement
-    return;
+    return "tenant1"; //todo:    rework and remove the stub
 }
 
 function getParameterByName(name, url) {
@@ -74,18 +77,25 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-function getTenantByURL(url, clusterDomain) {
-    // if (url.indexOf(clusterDomain) < 0) {
-    //     return '';
-    // }   
-    // url = url.replace(/(^\w+:|^)\/\//, '');
-    // return url.substring(0, url.indexOf('.'));
-
-    return "tenant1"; //todo:    rework and remove mock
+function resetTestSession() {
+    var request = {
+        action: 'resetTestSession', 
+        tenantNames: getParameterByName('tenantNames'),
+        clusterDomain: getParameterByName('clusterDomain')
+    };
+    chrome.runtime.sendMessage(request);
 }
 
-function recordLeak(leak) {   
-    var leaks = JSON.parse(localStorage.getItem(storageKey)) || [];
-    leaks.push(leak);
-    localStorage.setItem(storageKey , JSON.stringify(leaks));
+function showTestResults() {
+    var request = {action: 'getResultsPageLink'};
+    chrome.runtime.sendMessage(request, function(url) { window.location.replace(url); });
+}
+
+function setOptions(options, callBack) {
+    var request = {action: 'setOptions', options: options};
+    chrome.runtime.sendMessage(request, callBack);
+}
+
+function getOptions(callback) {
+    chrome.runtime.sendMessage({action: 'getOptions'}, callback);
 }

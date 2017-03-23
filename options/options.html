@@ -3,19 +3,21 @@
 <head>
   <title>OpenCloud Data Isolation Checker</title>
   <style>
-    body: { padding: 10px; }
+    body: {padding: 10px; margin: 5px;}
   </style>
 </head>
+<script src="../jquery-3.2.0.min.js"></script>
 <script src="options.js"></script>
 <body>
     Tenant Names:  <input id="tenantNames" type="text"> <br/>
     Cluster Domain: <input id="clusterDomain" type="text"> <br/>
-    Results Storage Key: <input id="resultsStorageKey" type="text"> <br/>
-    Text Block Margin: <input id="textBlockMargin" type="number"> <br/>
+    Text Block Margin: <input id="textBlockMargin" type="number" min="0" max="500"> <br/>
     Last Test Session ID: <input id="testSessionID" type="text"> <br/>
+    Amount of found leaks: <input id="amountOfLeaks" type="number" readonly> <br/>
     <br/>
-    <button id="saveSettings">Save settings</button> <br/>
+    <button id="saveOptions">Save options</button> <br/>
     <button id="clearSearchResults">Clear search results</button><br/>
-    <div id="saveStatus"></div>
+    <button id="resetSearchSession">Reset search session</button><br/>
+    <label id="saveStatus"/>
 </body>
 </html>

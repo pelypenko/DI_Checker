@@ -1,64 +1,59 @@
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('saveSettings').addEventListener('click', saveSettings);
-    document.getElementById('clearSearchResults').addEventListener('click', clearSearchResults);
-    restoreSettings();
-});
+$(document).ready(function() { 
+    $("#saveOptions").bind('click', saveOptions);
+    $("#clearSearchResults").bind('click', clearSearchResults);
+    $("#resetSearchSession").bind('click', resetSearchSession);
+    restoreOptions();
+})
 
-function saveSettings() {
-    var settings = {
-        tenantNames: document.getElementById('tenantNames').value,
-        clusterDomain: document.getElementById('clusterDomain').value,
-        resultsStorageKey: document.getElementById('resultsStorageKey').value,
-        textBlockMargin: document.getElementById('textBlockMargin').value,
-        testSessionID: document.getElementById('testSessionID').value
+function saveOptions() {
+    var options = {
+        tenantNames: $('#tenantNames').val(),
+        clusterDomain: $('#clusterDomain').val(),
+        textBlockMargin: $('#textBlockMargin').val(),
+        testSessionID: $('#testSessionID').val()
     };
-    sendToStorage(settings, updateStatus('Options saved.'));
+    setOptions(options, updateStatus('Options saved'));
 }
 
-function restoreSettings () {
-    getFromStorage(function(sett) {
-        if (!sett) return;
-
-        document.getElementById('tenantNames').value = sett.tenantNames;
-        document.getElementById('clusterDomain').value = sett.clusterDomain;
-        document.getElementById('resultsStorageKey').value = sett.resultsStorageKey;
-        document.getElementById('textBlockMargin').value = sett.textBlockMargin;
-        document.getElementById('testSessionID').value = sett.testSessionID;
+function restoreOptions () {
+    getOptions(function(options) {
+        $('#tenantNames').val(options.tenantNames);
+        $('#clusterDomain').val(options.clusterDomain);
+        $('#textBlockMargin').val(options.textBlockMargin);
+        $('#testSessionID').val(options.testSessionID);
+        $('#amountOfLeaks').val(options.leaks.length);
     });
-}
-
-function sendToStorage(settings, callBack)
-{
-    //chrome.storage.sync.set(settings, callBack);
-
-    var r = {action: 'setOptions', options: settings};
-    chrome.runtime.sendMessage(r, callBack);
-}
-
-function getFromStorage(callBack) {
-    var sett = {
-        tenantNames: 'tenant1, tenant2, tenant3',
-        clusterDomain: 'opendev.intapp.com',
-        resultsStorageKey: 'diLeaksStorage',
-        textBlockMargin: '250',
-        testSessionID: ''
-    };
-    chrome.storage.sync.get(sett, callBack);
 }
 
 function clearSearchResults () {
-    getFromStorage(function(sett) {
-        if (!sett) return;
+    chrome.runtime.sendMessage({action: 'clearTestSession'});
+    $('#testSessionID').val('');
+    $("#amountOfLeaks").val(0);
+    updateStatus('Search results removed');
+}
 
-        localStorage.setItem(sett.resultsStorageKey, '');
-        sett.testSessionID = '';
-        document.getElementById('testSessionID').value = sett.testSessionID;
-        sendToStorage(sett, updateStatus('Search results removed'));
-    });
+function resetSearchSession () {
+    var request = {
+        action: 'resetTestSession', 
+        tenantNames: $('#tenantNames').val(),
+        clusterDomain: $('#clusterDomain').val()
+    };
+    chrome.runtime.sendMessage(request);
+    $("#amountOfLeaks").val(0);
+    updateStatus('Search session reseted');
 }
 
 function updateStatus(message) {
-    var saveStatus = document.getElementById('saveStatus');
-    saveStatus.textContent = message;
-    setTimeout(function() { saveStatus.textContent = ''; }, 750);
+    var st = $('#saveStatus');
+    st.text(message);
+    setTimeout(function() { st.text(''); }, 750);
+}
+
+function setOptions(options, callBack) {
+    var request = {action: 'setOptions', options: options};
+    chrome.runtime.sendMessage(request, callBack);
+}
+
+function getOptions(callBack) {
+    chrome.runtime.sendMessage({action: 'getOptions'}, callBack);
 }

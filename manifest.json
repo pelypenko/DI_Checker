@@ -2,15 +2,15 @@
   "name": "OpenCloud Data Isolation Checker",
   "description": "Checks data isolation for multi-tenant application",
 
-  "version": "0.0.1",
+  "version": "0.1.0",
   "manifest_version": 2,
   "author": "www.intapp.com",
 
   "icons": {
-    "16": "Icons/Di16.png",
-    "32": "Icons/Di32.png",
-    "48": "Icons/Di48.png",
-    "128": "Icons/Di128.png"
+    "16": "icons/Di16.png",
+    "32": "icons/Di32.png",
+    "48": "icons/Di48.png",
+    "128": "icons/Di128.png"
   },
 
   "content_scripts": [
@@ -34,13 +34,18 @@
   },
 
   "browser_action": {
-    "default_icon": "Icons/Di16.png",
+    "default_icon": "icons/Di16.png",
     "default_title": "Show test results",
-    "default_popup": "results.html"
+    "default_popup": "results/results.html"
   },
 
+  "web_accessible_resources": [
+    "results/results.html",
+    "results/results.js",
+    "results/jquery-3.2.0.min.js"
+  ],
+
   "permissions": [
-    //"activeTab",
     "storage",
     "https://translate.google.com.ua/*", 
     "https://*.opendev.intapp.com/*",
