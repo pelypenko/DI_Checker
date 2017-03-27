@@ -23,9 +23,8 @@ function checkCurrentDoc(options) {
     if (!curTenant) 
         return;
 
-    var body = document.body.innerHTML;
+    var body = document.body.innerHTML.toLowerCase();
     var tenants = options.tenantNames ? options.tenantNames.split(',') : [];
-    options.leaks = [];
 
     //todo: re-work this
     $.each(tenants, function(ii, tenant) {
@@ -51,13 +50,15 @@ function checkCurrentDoc(options) {
 }
 
 function getTenantByURL(url, clusterDomain) {
-    // if (url.indexOf(clusterDomain) < 0) {
-    //     return '';
-    // }   
-    // url = url.replace(/(^\w+:|^)\/\//, '');
-    // return url.substring(0, url.indexOf('.'));
+    if (url.indexOf(clusterDomain) < 0) {
+        return '';
+    }
 
-    return "tenant1"; //todo:    rework and remove the stub
+    if (url.indexOf('translate.google.com.ua'))
+        return 'tenant1'; //ToDo: remove the stub
+
+    url = url.replace(/(^\w+:|^)\/\//, '').toLowerCase();
+    return url.substring(0, url.indexOf('.'));
 }
 
 function getParameterByName(name, url) {

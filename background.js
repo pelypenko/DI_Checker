@@ -53,6 +53,8 @@ function getOptions(callBack) {
 }
 
 function setOptions(options, callBack) {
+    options.tenantNames = options.tenantNames.toLowerCase();
+    options.clusterDomain = options.clusterDomain.toLowerCase();
     options.leaks = JSON.stringify(options.leaks);
     chrome.storage.local.set(options, callBack);
 }

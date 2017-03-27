@@ -39,7 +39,7 @@ function resetSearchSession () {
         clusterDomain: $('#clusterDomain').val()
     };
     chrome.runtime.sendMessage(request);
-    $("#amountOfLeaks").val(0);
+    $("#amountOfLeaks").val(0); //ToDo: Re-work using callbacks
     updateStatus('Search session reseted');
 }
 
