@@ -13,6 +13,6 @@ For example: "Test user " + GUID + " " + tenant1.
 
 In this repository implemented a Chrome Extension which silently on JS-backend analyses all incoming HTML traffic searching for appearance of wrong tenantIDs.
 
-- The extension has Config page for manual configuration or could be configured the same as activated/deactivated automatically by UI-tests init code.
+- The extension has Config page for manual configuration or could be configured, the same as activated/deactivated, automatically by UI-tests init code.
 - The extension logs found issues into HTML5 Local Storage. 
 - User is able to check test results manually (click on the Chrome Extention) or we can make special UI test which could get the results by HTTP request and analyze them automatically.
